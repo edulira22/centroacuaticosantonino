@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
+@theme {
+  /* Paleta Centro Acuático Chihuahua */
+  --color-primary: #1A4F8A;
+  --color-secondary: #2B7CC1;
+  --color-accent: #5BB8E8;
+  --color-bg-card: #EBF4FB;
+  --color-bg-app: #F5F7FA;
+  --color-text: #1A2332;
+  --color-text-muted: #6B7280;
+
+  /* Estatus */
+  --color-vigente: #22C55E;
+  --color-vencido: #EF4444;
+  --color-prorroga: #F59E0B;
+  --color-inactivo: #9CA3AF;
+
+  /* Fuentes */
+  --font-display: var(--font-outfit);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #F5F7FA;
+  --foreground: #1A2332;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
