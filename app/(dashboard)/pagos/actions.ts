@@ -143,11 +143,11 @@ export async function anularPago(
 // ============================================================
 // Helpers de cálculo de fechas para el formulario
 // ============================================================
-export function calcularPeriodo(mesISO: string): {
+export async function calcularPeriodo(mesISO: string): Promise<{
   periodo_mes: string;
   fecha_inicio: string;
   fecha_fin: string;
-} {
+}> {
   const fecha = parseISO(mesISO);
   return {
     periodo_mes: format(startOfMonth(fecha), 'yyyy-MM-dd'),
