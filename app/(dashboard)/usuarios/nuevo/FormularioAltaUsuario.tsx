@@ -35,6 +35,7 @@ export function FormularioAltaUsuario({ horarios, paquetes }: Props) {
     sexo: '',
     celular: '',
     servicio_medico: '',
+    numero_servicio_medico: '',
     contacto_emergencia_nombre: '',
     contacto_emergencia_celular: '',
     contacto_emergencia_parentesco: '',
@@ -190,11 +191,15 @@ export function FormularioAltaUsuario({ horarios, paquetes }: Props) {
             <input type="tel" value={form.celular} onChange={(e) => set('celular', e.target.value)}
               className={INPUT} placeholder="614 123 4567" />
           </Campo>
-          <Campo label="Servicio médico" className="sm:col-span-2">
+          <Campo label="Servicio médico">
             <select value={form.servicio_medico} onChange={(e) => set('servicio_medico', e.target.value)} className={INPUT}>
               <option value="">— Seleccionar —</option>
               {SERVICIOS_MEDICOS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
+          </Campo>
+          <Campo label="Número de servicio médico">
+            <input type="text" value={form.numero_servicio_medico} onChange={(e) => set('numero_servicio_medico', e.target.value)}
+              className={INPUT} placeholder="NSS, afiliación, etc." />
           </Campo>
         </div>
       </section>

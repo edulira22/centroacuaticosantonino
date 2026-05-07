@@ -212,7 +212,7 @@ export function PantallaRecepcion() {
   // ─── PANTALLA HOME ────────────────────────────────────────
   if (!modo) {
     return (
-      <div className="flex flex-col items-center justify-start min-h-[70vh] pt-12 px-4">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
         <div className="w-full max-w-lg space-y-8">
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-primary">Recepción</h1>
@@ -306,7 +306,7 @@ export function PantallaRecepcion() {
   // ─── PANTALLA DE BÚSQUEDA ─────────────────────────────────
   if (!usuarioSel) {
     return (
-      <div className="flex flex-col items-center justify-start min-h-[70vh] pt-12 px-4">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
         <div className="w-full max-w-xl space-y-6">
           {/* Header con breadcrumb */}
           <div>
@@ -397,7 +397,7 @@ export function PantallaRecepcion() {
   const nombreCompleto = `${usuarioSel.nombre} ${usuarioSel.apellido_paterno}${usuarioSel.apellido_materno ? ` ${usuarioSel.apellido_materno}` : ''}`;
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-[70vh] pt-8 px-4">
+    <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
       <div className="w-full max-w-lg space-y-4">
 
         {/* Botones de navegación */}

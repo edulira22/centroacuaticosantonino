@@ -81,6 +81,7 @@ export async function crearUsuarioForzado(datos: FormularioAlta, usuarioSistemaI
       sexo: datos.sexo || null,
       celular: datos.celular?.trim() || null,
       servicio_medico: datos.servicio_medico || null,
+      numero_servicio_medico: datos.numero_servicio_medico?.trim() || null,
       contacto_emergencia_nombre: datos.contacto_emergencia_nombre?.trim() || null,
       contacto_emergencia_celular: datos.contacto_emergencia_celular?.trim() || null,
       contacto_emergencia_parentesco: datos.contacto_emergencia_parentesco?.trim() || null,

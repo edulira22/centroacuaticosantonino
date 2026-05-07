@@ -64,6 +64,7 @@ export interface Usuario {
   sexo: string | null;
   celular: string | null;
   servicio_medico: string | null;
+  numero_servicio_medico: string | null;
   contacto_emergencia_nombre: string | null;
   contacto_emergencia_celular: string | null;
   contacto_emergencia_parentesco: string | null;
@@ -227,6 +228,7 @@ export interface FormularioAlta {
   sexo: string;
   celular: string;
   servicio_medico: string;
+  numero_servicio_medico: string;
   contacto_emergencia_nombre: string;
   contacto_emergencia_celular: string;
   contacto_emergencia_parentesco: string;

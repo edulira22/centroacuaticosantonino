@@ -16,6 +16,7 @@ interface UsuarioBase {
   sexo: string | null;
   celular: string | null;
   servicio_medico: string | null;
+  numero_servicio_medico: string | null;
   contacto_emergencia_nombre: string | null;
   contacto_emergencia_celular: string | null;
   contacto_emergencia_parentesco: string | null;
@@ -48,6 +49,7 @@ export function PanelEdicion({ usuario, horarios, paquetes }: Props) {
     sexo: usuario.sexo ?? '',
     celular: usuario.celular ?? '',
     servicio_medico: usuario.servicio_medico ?? '',
+    numero_servicio_medico: usuario.numero_servicio_medico ?? '',
     contacto_emergencia_nombre: usuario.contacto_emergencia_nombre ?? '',
     contacto_emergencia_celular: usuario.contacto_emergencia_celular ?? '',
     contacto_emergencia_parentesco: usuario.contacto_emergencia_parentesco ?? '',
@@ -191,6 +193,23 @@ export function PanelEdicion({ usuario, horarios, paquetes }: Props) {
             {editando
               ? <input type="tel" value={form.celular} onChange={(e) => setForm((f) => ({ ...f, celular: e.target.value }))} className={INPUT} />
               : <Valor>{usuario.celular ?? '—'}</Valor>}
+          </Campo>
+          <Campo label="Servicio médico">
+            {editando
+              ? (
+                <select value={form.servicio_medico} onChange={(e) => setForm((f) => ({ ...f, servicio_medico: e.target.value }))} className={INPUT}>
+                  <option value="">—</option>
+                  {['IMSS','ISSSTE','INSABI','PCE','PEMEX','Particular','Ninguno','Otro'].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              )
+              : <Valor>{usuario.servicio_medico ?? '—'}</Valor>}
+          </Campo>
+          <Campo label="Número de servicio médico">
+            {editando
+              ? <input type="text" value={form.numero_servicio_medico} onChange={(e) => setForm((f) => ({ ...f, numero_servicio_medico: e.target.value }))} className={INPUT} placeholder="NSS, afiliación, etc." />
+              : <Valor>{usuario.numero_servicio_medico ?? '—'}</Valor>}
           </Campo>
           <Campo label="Horario">
             {editando
