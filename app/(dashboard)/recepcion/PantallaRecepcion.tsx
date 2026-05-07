@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { buscarParaRecepcion, registrarAsistencia, type ResultadoBusqueda } from './actions';
 import { calcularEstatusCliente, type VigenciaCliente } from './vigenciaCliente';
 import { AvatarUsuario } from '@/components/usuarios/AvatarUsuario';
 import {
   Search, CheckCircle2, XCircle, AlertTriangle, Lock,
   Clock, CreditCard, Loader2, RotateCcw, ArrowLeft,
+  LogIn, Banknote, Eye,
 } from 'lucide-react';
 
 // ============================================================
@@ -35,7 +37,7 @@ const ESTATUS_CONFIG = {
     titulo:      '🚫 PAGO VENCIDO',
     subtitulo:   'Cobrar antes de ingresar — puede autorizar con observación',
     btnClasses:  'bg-vencido   hover:bg-red-600   text-white',
-    btnHabilitado: true,   // puede entrar con advertencia visible
+    btnHabilitado: true,
   },
   pendiente: {
     bg:          'bg-blue-50   border-secondary',
@@ -64,12 +66,47 @@ const ESTATUS_CONFIG = {
 } as const;
 
 type EstatusKey = keyof typeof ESTATUS_CONFIG;
+type Modo = 'entrada' | 'pago' | 'consulta';
+
+const MODO_CONFIG: Record<Modo, {
+  label: string;
+  placeholder: string;
+  icon: React.ReactNode;
+  btnBg: string;
+  headerColor: string;
+}> = {
+  entrada: {
+    label: 'Registrar entrada',
+    placeholder: 'Número de credencial o nombre...',
+    icon: <LogIn size={28} />,
+    btnBg: 'bg-vigente hover:bg-green-600',
+    headerColor: 'text-vigente',
+  },
+  pago: {
+    label: 'Registrar pago',
+    placeholder: 'Número de credencial o nombre...',
+    icon: <Banknote size={28} />,
+    btnBg: 'bg-secondary hover:bg-primary',
+    headerColor: 'text-secondary',
+  },
+  consulta: {
+    label: 'Consultar estatus',
+    placeholder: 'Número de credencial o nombre...',
+    icon: <Eye size={28} />,
+    btnBg: 'bg-gray-600 hover:bg-gray-700',
+    headerColor: 'text-gray-600',
+  },
+};
 
 // ============================================================
 // Componente principal
 // ============================================================
 export function PantallaRecepcion() {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [modo, setModo] = useState<Modo | null>(null);
+
   const [query, setQuery] = useState('');
   const [resultados, setResultados] = useState<ResultadoBusqueda[]>([]);
   const [buscando, setBuscando] = useState(false);
@@ -77,15 +114,19 @@ export function PantallaRecepcion() {
   const [vigencia, setVigencia] = useState<VigenciaCliente | null>(null);
   const [cargandoVigencia, setCargandoVigencia] = useState(false);
 
-  // Estado del check-in
+  // Estado del check-in (solo modo entrada)
   const [registrando, setRegistrando] = useState(false);
   const [exito, setExito] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [duplicado, setDuplicado] = useState(false);
   const [obsrDuplicado, setObsrDuplicado] = useState('');
 
-  // Foco automático al inicio y al volver a búsqueda
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  // Foco automático al mostrar campo de búsqueda
+  useEffect(() => {
+    if (modo && !usuarioSel) {
+      setTimeout(() => inputRef.current?.focus(), 80);
+    }
+  }, [modo, usuarioSel]);
 
   // Búsqueda debounced
   const buscar = useCallback(async (q: string) => {
@@ -101,8 +142,12 @@ export function PantallaRecepcion() {
     return () => clearTimeout(t);
   }, [query, buscar]);
 
-  // Al seleccionar usuario: calcular vigencia
   async function seleccionarUsuario(u: ResultadoBusqueda) {
+    if (modo === 'pago') {
+      router.push(`/pagos/nuevo?usuario=${u.id}`);
+      return;
+    }
+
     setUsuarioSel(u);
     setResultados([]);
     setQuery('');
@@ -116,7 +161,19 @@ export function PantallaRecepcion() {
     setCargandoVigencia(false);
   }
 
-  function resetear() {
+  function volverAHome() {
+    setModo(null);
+    setUsuarioSel(null);
+    setVigencia(null);
+    setQuery('');
+    setResultados([]);
+    setExito(false);
+    setErrorMsg(null);
+    setDuplicado(false);
+    setObsrDuplicado('');
+  }
+
+  function volverABusqueda() {
     setUsuarioSel(null);
     setVigencia(null);
     setExito(false);
@@ -143,8 +200,7 @@ export function PantallaRecepcion() {
     if (res.ok) {
       setExito(true);
       setDuplicado(false);
-      // Volver a búsqueda automáticamente después de 2.5 s
-      setTimeout(() => resetear(), 2500);
+      setTimeout(() => volverAHome(), 2500);
     } else if (res.duplicado) {
       setDuplicado(true);
       setErrorMsg(res.error ?? null);
@@ -153,18 +209,101 @@ export function PantallaRecepcion() {
     }
   }
 
-  const cfg = ESTATUS_CONFIG[(vigencia?.estatus ?? usuarioSel?.estatus ?? 'pendiente') as EstatusKey]
-    ?? ESTATUS_CONFIG.pendiente;
-
-  // ─── Pantalla de BÚSQUEDA ────────────────────────────────
-  if (!usuarioSel) {
+  // ─── PANTALLA HOME ────────────────────────────────────────
+  if (!modo) {
     return (
-      <div className="flex flex-col items-center justify-start min-h-[70vh] pt-16 px-4">
-        <div className="w-full max-w-xl space-y-6">
-          {/* Título */}
+      <div className="flex flex-col items-center justify-start min-h-[70vh] pt-12 px-4">
+        <div className="w-full max-w-lg space-y-8">
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-primary">Recepción</h1>
-            <p className="text-text-muted mt-1">Busca al usuario por credencial o nombre</p>
+            <p className="text-text-muted mt-1">¿Qué deseas hacer?</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {/* Registrar entrada */}
+            <button
+              onClick={() => setModo('entrada')}
+              className="group flex items-center gap-5 bg-white border-2 border-gray-100 hover:border-vigente
+                         hover:bg-green-50 rounded-2xl px-6 py-6 text-left transition-all duration-150
+                         shadow-sm hover:shadow-md active:scale-[0.99]"
+            >
+              <span className="w-14 h-14 rounded-xl bg-green-100 group-hover:bg-vigente text-vigente
+                               group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                <LogIn size={28} />
+              </span>
+              <div>
+                <p className="font-display font-bold text-xl text-text group-hover:text-vigente transition-colors">
+                  Registrar entrada
+                </p>
+                <p className="text-sm text-text-muted mt-0.5">Buscar usuario y hacer check-in</p>
+              </div>
+            </button>
+
+            {/* Registrar pago */}
+            <button
+              onClick={() => setModo('pago')}
+              className="group flex items-center gap-5 bg-white border-2 border-gray-100 hover:border-secondary
+                         hover:bg-blue-50 rounded-2xl px-6 py-6 text-left transition-all duration-150
+                         shadow-sm hover:shadow-md active:scale-[0.99]"
+            >
+              <span className="w-14 h-14 rounded-xl bg-blue-100 group-hover:bg-secondary text-secondary
+                               group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                <Banknote size={28} />
+              </span>
+              <div>
+                <p className="font-display font-bold text-xl text-text group-hover:text-secondary transition-colors">
+                  Registrar pago
+                </p>
+                <p className="text-sm text-text-muted mt-0.5">Buscar usuario y registrar mensualidad</p>
+              </div>
+            </button>
+
+            {/* Consultar estatus */}
+            <button
+              onClick={() => setModo('consulta')}
+              className="group flex items-center gap-5 bg-white border-2 border-gray-100 hover:border-gray-400
+                         hover:bg-gray-50 rounded-2xl px-6 py-6 text-left transition-all duration-150
+                         shadow-sm hover:shadow-md active:scale-[0.99]"
+            >
+              <span className="w-14 h-14 rounded-xl bg-gray-100 group-hover:bg-gray-600 text-gray-500
+                               group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                <Eye size={28} />
+              </span>
+              <div>
+                <p className="font-display font-bold text-xl text-text group-hover:text-gray-700 transition-colors">
+                  Consultar estatus
+                </p>
+                <p className="text-sm text-text-muted mt-0.5">Ver vigencia y datos de un usuario</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const modoCfg = MODO_CONFIG[modo];
+
+  // ─── PANTALLA DE BÚSQUEDA ─────────────────────────────────
+  if (!usuarioSel) {
+    return (
+      <div className="flex flex-col items-center justify-start min-h-[70vh] pt-12 px-4">
+        <div className="w-full max-w-xl space-y-6">
+          {/* Header con breadcrumb */}
+          <div>
+            <button
+              onClick={volverAHome}
+              className="flex items-center gap-1.5 text-sm text-text-muted hover:text-primary transition-colors mb-4"
+            >
+              <ArrowLeft size={14} /> Volver
+            </button>
+            <div className="flex items-center gap-3">
+              <span className={`${modoCfg.headerColor}`}>{modoCfg.icon}</span>
+              <h1 className={`font-display text-2xl font-bold ${modoCfg.headerColor}`}>
+                {modoCfg.label}
+              </h1>
+            </div>
+            <p className="text-text-muted text-sm mt-1 ml-10">Busca al usuario por credencial o nombre</p>
           </div>
 
           {/* Campo de búsqueda grande */}
@@ -181,7 +320,7 @@ export function PantallaRecepcion() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && resultados.length === 1) seleccionarUsuario(resultados[0]);
               }}
-              placeholder="Número de credencial o nombre..."
+              placeholder={modoCfg.placeholder}
               className="w-full pl-14 pr-5 py-5 text-xl border-2 border-gray-200 rounded-2xl
                          shadow-sm focus:outline-none focus:border-secondary focus:ring-4
                          focus:ring-secondary/10 transition-all"
@@ -189,7 +328,7 @@ export function PantallaRecepcion() {
             />
           </div>
 
-          {/* Resultados de búsqueda */}
+          {/* Resultados */}
           {resultados.length > 0 && (
             <ul className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden divide-y divide-gray-50">
               {resultados.map((u) => (
@@ -210,9 +349,9 @@ export function PantallaRecepcion() {
                       </p>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                      u.estatus === 'activo'     ? 'bg-green-100 text-vigente'   :
-                      u.estatus === 'vencido'    ? 'bg-red-100   text-vencido'   :
-                      u.estatus === 'prorroga'   ? 'bg-amber-100 text-prorroga'  :
+                      u.estatus === 'activo'   ? 'bg-green-100 text-vigente'  :
+                      u.estatus === 'vencido'  ? 'bg-red-100   text-vencido'  :
+                      u.estatus === 'prorroga' ? 'bg-amber-100 text-prorroga' :
                       'bg-gray-100 text-inactivo'
                     }`}>
                       {u.estatus}
@@ -233,22 +372,36 @@ export function PantallaRecepcion() {
     );
   }
 
-  // ─── Pantalla de FICHA (check-in) ───────────────────────
+  // ─── PANTALLA DE FICHA ────────────────────────────────────
+  const cfg = ESTATUS_CONFIG[(vigencia?.estatus ?? usuarioSel.estatus ?? 'pendiente') as EstatusKey]
+    ?? ESTATUS_CONFIG.pendiente;
   const nombreCompleto = `${usuarioSel.nombre} ${usuarioSel.apellido_paterno}${usuarioSel.apellido_materno ? ` ${usuarioSel.apellido_materno}` : ''}`;
 
   return (
     <div className="flex flex-col items-center justify-start min-h-[70vh] pt-8 px-4">
       <div className="w-full max-w-lg space-y-4">
 
-        {/* Botón volver */}
-        <button onClick={resetear} className="flex items-center gap-1.5 text-sm text-text-muted hover:text-primary transition-colors">
-          <ArrowLeft size={14} /> Nueva búsqueda
-        </button>
+        {/* Botones de navegación */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={volverABusqueda}
+            className="flex items-center gap-1.5 text-sm text-text-muted hover:text-primary transition-colors"
+          >
+            <ArrowLeft size={14} /> Nueva búsqueda
+          </button>
+          <span className="text-gray-200">·</span>
+          <button
+            onClick={volverAHome}
+            className="text-sm text-text-muted hover:text-primary transition-colors"
+          >
+            Inicio recepción
+          </button>
+        </div>
 
         {/* ═══ FICHA PRINCIPAL ══════════════════════════════ */}
         <div className={`rounded-2xl border-2 overflow-hidden shadow-md ${cfg.bg}`}>
 
-          {/* Header de estatus — visible desde 1 metro */}
+          {/* Header de estatus */}
           <div className={`${cfg.headerBg} px-6 py-4`}>
             <p className="text-white font-display font-bold text-2xl tracking-tight">
               {cfg.titulo}
@@ -301,7 +454,7 @@ export function PantallaRecepcion() {
               </div>
             )}
 
-            {/* Observación importante del usuario */}
+            {/* Observación del usuario */}
             {usuarioSel.observaciones && (
               <div className="bg-amber-50 border border-prorroga/30 rounded-xl px-4 py-3">
                 <p className="text-xs font-semibold text-amber-700 mb-1">Nota del usuario</p>
@@ -309,74 +462,96 @@ export function PantallaRecepcion() {
               </div>
             )}
 
-            {/* Éxito de registro */}
-            {exito && (
-              <div className="flex items-center gap-3 bg-green-50 border border-vigente/30 rounded-xl px-4 py-4">
-                <CheckCircle2 size={28} className="text-vigente shrink-0" />
-                <div>
-                  <p className="font-bold text-vigente text-lg">¡Entrada registrada!</p>
-                  <p className="text-sm text-text-muted">Volviendo a búsqueda automáticamente...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Error general */}
-            {errorMsg && !duplicado && (
-              <div className="bg-red-50 border border-vencido/30 rounded-xl px-4 py-3 text-sm text-vencido">
-                {errorMsg}
-              </div>
-            )}
-
-            {/* Panel de duplicado */}
-            {duplicado && (
-              <div className="bg-amber-50 border border-prorroga/30 rounded-xl p-4 space-y-3">
-                <div className="flex items-start gap-2 text-amber-700">
-                  <AlertTriangle size={18} className="mt-0.5 shrink-0" />
-                  <p className="font-semibold text-sm">{errorMsg}</p>
-                </div>
-                <textarea
-                  value={obsrDuplicado}
-                  onChange={(e) => setObsrDuplicado(e.target.value)}
-                  rows={2}
-                  placeholder="Motivo de la segunda entrada (opcional)..."
-                  className="w-full px-3 py-2 border border-amber-200 rounded-lg text-sm resize-none focus:outline-none focus:border-prorroga"
-                />
-                <button
-                  onClick={() => handleRegistrar(true)}
-                  disabled={registrando}
-                  className="w-full py-3 bg-prorroga hover:bg-amber-600 text-white font-bold rounded-xl transition-colors disabled:opacity-60"
-                >
-                  {registrando ? 'Registrando...' : 'Confirmar segunda entrada'}
-                </button>
-              </div>
-            )}
-
-            {/* ══ BOTÓN PRINCIPAL DE ENTRADA ══════════════════ */}
-            {!exito && !duplicado && (
-              <button
-                onClick={() => handleRegistrar(false)}
-                disabled={registrando || !cfg.btnHabilitado}
-                className={`w-full py-5 rounded-xl font-display font-bold text-2xl tracking-tight
-                            transition-all duration-150 active:scale-[0.98] shadow-sm
-                            disabled:opacity-50 disabled:cursor-not-allowed
-                            flex items-center justify-center gap-3 ${cfg.btnClasses}`}
-              >
-                {registrando ? (
-                  <><Loader2 size={24} className="animate-spin" /> Registrando...</>
-                ) : !cfg.btnHabilitado ? (
-                  <><Lock size={24} /> ACCESO BLOQUEADO</>
-                ) : (
-                  <><CheckCircle2 size={28} /> REGISTRAR ENTRADA</>
+            {/* ── Solo en modo 'entrada' ──────────────────────── */}
+            {modo === 'entrada' && (
+              <>
+                {exito && (
+                  <div className="flex items-center gap-3 bg-green-50 border border-vigente/30 rounded-xl px-4 py-4">
+                    <CheckCircle2 size={28} className="text-vigente shrink-0" />
+                    <div>
+                      <p className="font-bold text-vigente text-lg">¡Entrada registrada!</p>
+                      <p className="text-sm text-text-muted">Volviendo al inicio automáticamente...</p>
+                    </div>
+                  </div>
                 )}
-              </button>
+
+                {errorMsg && !duplicado && (
+                  <div className="bg-red-50 border border-vencido/30 rounded-xl px-4 py-3 text-sm text-vencido">
+                    {errorMsg}
+                  </div>
+                )}
+
+                {duplicado && (
+                  <div className="bg-amber-50 border border-prorroga/30 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start gap-2 text-amber-700">
+                      <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                      <p className="font-semibold text-sm">{errorMsg}</p>
+                    </div>
+                    <textarea
+                      value={obsrDuplicado}
+                      onChange={(e) => setObsrDuplicado(e.target.value)}
+                      rows={2}
+                      placeholder="Motivo de la segunda entrada (opcional)..."
+                      className="w-full px-3 py-2 border border-amber-200 rounded-lg text-sm resize-none focus:outline-none focus:border-prorroga"
+                    />
+                    <button
+                      onClick={() => handleRegistrar(true)}
+                      disabled={registrando}
+                      className="w-full py-3 bg-prorroga hover:bg-amber-600 text-white font-bold rounded-xl transition-colors disabled:opacity-60"
+                    >
+                      {registrando ? 'Registrando...' : 'Confirmar segunda entrada'}
+                    </button>
+                  </div>
+                )}
+
+                {!exito && !duplicado && (
+                  <button
+                    onClick={() => handleRegistrar(false)}
+                    disabled={registrando || !cfg.btnHabilitado}
+                    className={`w-full py-5 rounded-xl font-display font-bold text-2xl tracking-tight
+                                transition-all duration-150 active:scale-[0.98] shadow-sm
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                                flex items-center justify-center gap-3 ${cfg.btnClasses}`}
+                  >
+                    {registrando ? (
+                      <><Loader2 size={24} className="animate-spin" /> Registrando...</>
+                    ) : !cfg.btnHabilitado ? (
+                      <><Lock size={24} /> ACCESO BLOQUEADO</>
+                    ) : (
+                      <><CheckCircle2 size={28} /> REGISTRAR ENTRADA</>
+                    )}
+                  </button>
+                )}
+
+                {exito && (
+                  <button
+                    onClick={volverAHome}
+                    className="w-full py-3 border-2 border-vigente text-vigente font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-green-50 transition-colors"
+                  >
+                    <RotateCcw size={18} /> Siguiente usuario
+                  </button>
+                )}
+              </>
             )}
 
-            {/* Botón reiniciar si ya está el éxito */}
-            {exito && (
-              <button onClick={resetear}
-                className="w-full py-3 border-2 border-vigente text-vigente font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-green-50 transition-colors">
-                <RotateCcw size={18} /> Siguiente usuario
-              </button>
+            {/* ── Solo en modo 'consulta' — acción secundaria ── */}
+            {modo === 'consulta' && (
+              <div className="flex gap-3">
+                <button
+                  onClick={volverABusqueda}
+                  className="flex-1 py-3 border-2 border-gray-200 text-text-muted font-semibold rounded-xl
+                             flex items-center justify-center gap-2 hover:bg-bg-card transition-colors"
+                >
+                  <Search size={16} /> Buscar otro
+                </button>
+                <a
+                  href={`/usuarios/${usuarioSel.id}`}
+                  className="flex-1 py-3 bg-secondary hover:bg-primary text-white font-semibold rounded-xl
+                             flex items-center justify-center gap-2 transition-colors text-center"
+                >
+                  Ver ficha completa
+                </a>
+              </div>
             )}
           </div>
         </div>
@@ -385,7 +560,7 @@ export function PantallaRecepcion() {
   );
 }
 
-// ─── Helper visual ───────────────────────────────────────────
+// ─── Helper visual ────────────────────────────────────────────
 function DatoFicha({ icon, label, value, alert }: { icon: React.ReactNode; label: string; value: string; alert?: boolean }) {
   return (
     <div className="bg-white/70 rounded-xl px-3 py-2.5">
