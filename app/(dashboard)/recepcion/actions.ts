@@ -84,7 +84,7 @@ export async function registrarAsistencia(params: {
     .insert({
       usuario_id: params.usuario_id,
       fecha: hoy,
-      hora_entrada: new Date().toISOString(),
+      hora_entrada: new Date().toISOString().slice(11), // TIMETZ solo acepta la parte de hora
       estatus_al_momento: vigencia.estatus,
       metodo_registro: 'manual',
       registrado_por: user.id,
