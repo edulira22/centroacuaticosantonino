@@ -124,14 +124,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const Sidebar = (
     <aside className="flex flex-col h-full bg-primary w-64 shrink-0">
       {/* Logo */}
-      <div className="px-4 pt-5 pb-3">
-        <div className="bg-white rounded-2xl px-4 py-3">
+      <div className="px-4 pt-4 pb-2">
+        <div className="bg-white rounded-xl px-3 py-2 flex items-center justify-center">
           <Image
             src="/logo.svg"
             alt="Centro Acuático Chihuahua"
             width={200}
             height={110}
-            className="w-full h-auto"
+            className="h-16 w-auto"
             priority
           />
         </div>
