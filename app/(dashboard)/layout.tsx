@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import {
-  Waves,
   LayoutDashboard,
   Users,
   CreditCard,
@@ -124,15 +124,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const Sidebar = (
     <aside className="flex flex-col h-full bg-primary w-64 shrink-0">
       {/* Logo */}
-      <div className="px-6 pt-6 pb-4 flex items-center gap-3">
-        <div className="bg-white/10 rounded-xl p-2">
-          <Waves size={24} className="text-accent" strokeWidth={1.5} />
-        </div>
-        <div>
-          <p className="font-display font-bold text-white text-sm leading-tight">
-            AquaControl
-          </p>
-          <p className="text-blue-200/60 text-xs">Centro Acuático Chihuahua</p>
+      <div className="px-4 pt-5 pb-3">
+        <div className="bg-white rounded-2xl px-4 py-3">
+          <Image
+            src="/logo.svg"
+            alt="Centro Acuático Chihuahua"
+            width={200}
+            height={110}
+            className="w-full h-auto"
+            priority
+          />
         </div>
       </div>
 
