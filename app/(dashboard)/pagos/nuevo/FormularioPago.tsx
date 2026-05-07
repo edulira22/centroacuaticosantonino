@@ -173,7 +173,7 @@ export function FormularioPago({ paquetes, metodos, usuarioPrellenado }: Props) 
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por nombre o número de credencial..."
+                placeholder="Buscar por nombre o ID Credencial..."
                 className={`${INPUT} pl-9`}
                 autoFocus
               />

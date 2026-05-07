@@ -57,6 +57,20 @@ export async function crearUsuarioForzado(datos: FormularioAlta, usuarioSistemaI
   const registradoPor = usuarioSistemaId ?? user?.id;
   if (!registradoPor) return { ok: false, error: 'No autenticado' };
 
+  // Calcular siguiente ID Credencial consecutivo
+  const { data: existentes } = await supabase
+    .from('usuarios')
+    .select('numero_credencial')
+    .not('numero_credencial', 'is', null);
+
+  const maxNum = Math.max(
+    0,
+    ...(existentes ?? [])
+      .map((u) => parseInt(u.numero_credencial ?? '0'))
+      .filter((n) => !isNaN(n) && n > 0),
+  );
+  const numero_credencial = String(maxNum + 1).padStart(4, '0');
+
   const { data, error } = await supabase
     .from('usuarios')
     .insert({
@@ -76,6 +90,7 @@ export async function crearUsuarioForzado(datos: FormularioAlta, usuarioSistemaI
       estatus: 'pendiente',
       fecha_inscripcion: new Date().toISOString().split('T')[0],
       registrado_por: registradoPor,
+      numero_credencial,
     })
     .select('id')
     .single();

@@ -77,21 +77,21 @@ const MODO_CONFIG: Record<Modo, {
 }> = {
   entrada: {
     label: 'Registrar entrada',
-    placeholder: 'Número de credencial o nombre...',
+    placeholder: 'ID Credencial o nombre...',
     icon: <LogIn size={28} />,
     btnBg: 'bg-vigente hover:bg-green-600',
     headerColor: 'text-vigente',
   },
   pago: {
     label: 'Registrar pago',
-    placeholder: 'Número de credencial o nombre...',
+    placeholder: 'ID Credencial o nombre...',
     icon: <Banknote size={28} />,
     btnBg: 'bg-secondary hover:bg-primary',
     headerColor: 'text-secondary',
   },
   consulta: {
     label: 'Consultar estatus',
-    placeholder: 'Número de credencial o nombre...',
+    placeholder: 'ID Credencial o nombre...',
     icon: <Eye size={28} />,
     btnBg: 'bg-gray-600 hover:bg-gray-700',
     headerColor: 'text-gray-600',

@@ -120,9 +120,9 @@ export function PanelEdicion({ usuario, horarios, paquetes }: Props) {
           <p className="text-xs text-vencido bg-red-50 border border-vencido/20 rounded-lg px-3 py-2">{error}</p>
         )}
 
-        {/* Número de credencial */}
+        {/* ID Credencial */}
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Número de credencial</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">ID Credencial</p>
           {editandoCredencial ? (
             <div className="flex gap-2">
               <input

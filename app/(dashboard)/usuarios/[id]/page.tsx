@@ -91,7 +91,7 @@ export default async function FichaUsuarioPage({
                     </span>
                   )}
                   {!usuario.numero_credencial && (
-                    <span className="text-xs text-text-muted italic">Sin número de credencial</span>
+                    <span className="text-xs text-text-muted italic">Sin ID Credencial</span>
                   )}
                 </div>
               </div>

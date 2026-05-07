@@ -75,7 +75,7 @@ export default async function BajasPage({
           name="q"
           defaultValue={q}
           type="search"
-          placeholder="Buscar por nombre o número de credencial..."
+          placeholder="Buscar por nombre o ID Credencial..."
           className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm
                      focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary"
         />
