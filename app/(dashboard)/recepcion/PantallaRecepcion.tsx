@@ -8,7 +8,7 @@ import { AvatarUsuario } from '@/components/usuarios/AvatarUsuario';
 import {
   Search, CheckCircle2, XCircle, AlertTriangle, Lock,
   Clock, CreditCard, Loader2, RotateCcw, ArrowLeft,
-  LogIn, Banknote, Eye,
+  LogIn, Banknote, Eye, UserPlus,
 } from 'lucide-react';
 
 // ============================================================
@@ -276,6 +276,25 @@ export function PantallaRecepcion() {
                 <p className="text-sm text-text-muted mt-0.5">Ver vigencia y datos de un usuario</p>
               </div>
             </button>
+
+            {/* Agregar nuevo usuario */}
+            <a
+              href="/usuarios/nuevo"
+              className="group flex items-center gap-5 bg-white border-2 border-gray-100 hover:border-prorroga
+                         hover:bg-amber-50 rounded-2xl px-6 py-6 text-left transition-all duration-150
+                         shadow-sm hover:shadow-md active:scale-[0.99]"
+            >
+              <span className="w-14 h-14 rounded-xl bg-amber-100 group-hover:bg-prorroga text-prorroga
+                               group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                <UserPlus size={28} />
+              </span>
+              <div>
+                <p className="font-display font-bold text-xl text-text group-hover:text-amber-700 transition-colors">
+                  Agregar nuevo usuario
+                </p>
+                <p className="text-sm text-text-muted mt-0.5">Registrar un usuario nuevo en el sistema</p>
+              </div>
+            </a>
           </div>
         </div>
       </div>
