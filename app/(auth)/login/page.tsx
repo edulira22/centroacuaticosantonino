@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Waves, Lock, Mail, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,16 +43,17 @@ export default function LoginPage() {
       {/* Card de login */}
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header con logo */}
-        <div className="bg-primary px-8 pt-10 pb-8 flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Waves className="text-accent" size={36} strokeWidth={1.5} />
+        <div className="bg-primary px-8 pt-8 pb-7 flex flex-col items-center">
+          <div className="bg-white rounded-2xl px-6 py-4">
+            <Image
+              src="/logo.svg"
+              alt="Centro Acuático Chihuahua"
+              width={200}
+              height={110}
+              className="h-20 w-auto"
+              priority
+            />
           </div>
-          <h1 className="font-display text-2xl font-bold text-white tracking-tight text-center">
-            Centro Acuático Chihuahua
-          </h1>
-          <p className="text-accent text-sm mt-1 tracking-widest uppercase font-medium">
-            AquaControl
-          </p>
         </div>
 
         {/* Formulario */}
