@@ -170,6 +170,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => setSidebarOpen(false)}
           />
         ))}
+
+        {/* Monitor — siempre visible, abre en nueva pestaña */}
+        <a
+          href="/monitor"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-blue-100/80 hover:bg-white/10 hover:text-white transition-all duration-150"
+        >
+          <MonitorPlay size={20} />
+          <span>Monitor</span>
+        </a>
       </nav>
 
       {/* Usuario autenticado */}
@@ -187,16 +198,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <p className="text-blue-200/60 text-xs capitalize">{rol}</p>
           </div>
         </div>
-        <Link
-          href="/monitor"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center gap-3 px-4 py-1.5 rounded-lg text-xs text-blue-300
-                     hover:text-white hover:bg-white/10 transition-all duration-150"
-        >
-          <MonitorPlay size={13} />
-          Abrir monitor
-        </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-blue-100/80
