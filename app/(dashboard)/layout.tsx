@@ -191,8 +191,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           href="/monitor"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center gap-3 px-4 py-1.5 rounded-lg text-xs text-blue-200/55
-                     hover:text-blue-100 hover:bg-white/10 transition-all duration-150"
+          className="w-full flex items-center gap-3 px-4 py-1.5 rounded-lg text-xs text-blue-300
+                     hover:text-white hover:bg-white/10 transition-all duration-150"
         >
           <MonitorPlay size={13} />
           Abrir monitor
