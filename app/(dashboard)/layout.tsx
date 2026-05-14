@@ -32,9 +32,24 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/',          label: 'Dashboard',  icon: <LayoutDashboard size={20} /> },
   { href: '/usuarios',  label: 'Usuarios',   icon: <Users size={20} /> },
   { href: '/pagos',     label: 'Pagos',      icon: <CreditCard size={20} /> },
-  { href: '/bajas',     label: 'Bajas',      icon: <UserMinus size={20} /> },
-  { href: '/incidentes', label: 'Enfermería', icon: <Stethoscope size={20} /> },
-  { href: '/reportes',  label: 'Reportes',   icon: <BarChart2 size={20} /> },
+  {
+    href: '/bajas',
+    label: 'Bajas',
+    icon: <UserMinus size={20} />,
+    rolesPermitidos: ['admin', 'superadmin'],
+  },
+  {
+    href: '/incidentes',
+    label: 'Enfermería',
+    icon: <Stethoscope size={20} />,
+    rolesPermitidos: ['admin', 'superadmin'],
+  },
+  {
+    href: '/reportes',
+    label: 'Reportes',
+    icon: <BarChart2 size={20} />,
+    rolesPermitidos: ['admin', 'superadmin'],
+  },
   {
     href: '/bitacora',
     label: 'Bitácora',
