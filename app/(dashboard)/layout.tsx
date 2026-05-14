@@ -18,6 +18,7 @@ import {
   LogOut,
   Menu,
   Dumbbell,
+  MonitorPlay,
 } from 'lucide-react';
 
 interface NavItem {
@@ -186,6 +187,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <p className="text-blue-200/60 text-xs capitalize">{rol}</p>
           </div>
         </div>
+        <Link
+          href="/monitor"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center gap-3 px-4 py-1.5 rounded-lg text-xs text-blue-200/30
+                     hover:text-blue-200/60 hover:bg-white/5 transition-all duration-150"
+        >
+          <MonitorPlay size={13} />
+          Abrir monitor
+        </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-blue-100/80
