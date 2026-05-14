@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { buscarParaRecepcion, registrarAsistencia, type ResultadoBusqueda } from './actions';
 import { calcularEstatusCliente, type VigenciaCliente } from './vigenciaCliente';
 import { AvatarUsuario } from '@/components/usuarios/AvatarUsuario';
@@ -127,6 +128,25 @@ export function PantallaRecepcion() {
       setTimeout(() => inputRef.current?.focus(), 80);
     }
   }, [modo, usuarioSel]);
+
+  // Broadcast al monitor en vivo cuando se selecciona un usuario y carga su vigencia
+  useEffect(() => {
+    if (!usuarioSel || !vigencia || modo === 'pago') return;
+    const supabase = createClient();
+    supabase.channel('recepcion-monitor').send({
+      type: 'broadcast',
+      event: 'lookup',
+      payload: {
+        id: `${usuarioSel.id}-${Date.now()}`,
+        numero_credencial: usuarioSel.numero_credencial,
+        nombre: usuarioSel.nombre,
+        apellido_paterno: usuarioSel.apellido_paterno,
+        estatus: vigencia.estatus,
+        paquete: usuarioSel.paquetes?.nombre ?? null,
+        horario: usuarioSel.horarios?.nombre ?? null,
+      },
+    });
+  }, [usuarioSel, vigencia, modo]);
 
   // Búsqueda debounced
   const buscar = useCallback(async (q: string) => {

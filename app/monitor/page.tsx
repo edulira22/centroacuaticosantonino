@@ -220,8 +220,34 @@ export default function MonitorPage() {
       }
     })();
 
-    // ── Suscripción Realtime ──────────────────────────────────────────────────
-    const channel = supabase
+    // ── Canal 1: Broadcast desde Recepción (lookup en tiempo real) ──────────
+    const broadcastChannel = supabase
+      .channel('recepcion-monitor')
+      .on('broadcast', { event: 'lookup' }, (msg) => {
+        const p = msg.payload as {
+          id: string;
+          numero_credencial: string | null;
+          nombre: string;
+          apellido_paterno: string;
+          estatus: string;
+          paquete: string | null;
+          horario: string | null;
+        };
+        agregar({
+          id: p.id,
+          ts: new Date(),
+          numero_credencial: p.numero_credencial,
+          nombre: p.nombre,
+          apellido_paterno: p.apellido_paterno,
+          estatus_al_momento: p.estatus,
+          paquete: p.paquete,
+          horario: p.horario,
+        });
+      })
+      .subscribe((status) => setConectado(status === 'SUBSCRIBED'));
+
+    // ── Canal 2: Postgres Changes — entradas registradas en BD ───────────────
+    const dbChannel = supabase
       .channel('monitor-fila-live')
       .on(
         'postgres_changes',
@@ -255,10 +281,11 @@ export default function MonitorPage() {
           });
         }
       )
-      .subscribe((status) => setConectado(status === 'SUBSCRIBED'));
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(broadcastChannel);
+      supabase.removeChannel(dbChannel);
       timers.current.forEach((t) => clearTimeout(t));
     };
   }, [agregar]);
