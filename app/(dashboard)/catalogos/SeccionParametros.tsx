@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, Check, X, Plus, Trash2, Lock } from 'lucide-react';
-import { actualizarParametro, crearParametro, eliminarParametro } from './actions';
+import { Pencil, Check, X, Trash2, Lock } from 'lucide-react';
+import { actualizarParametro, eliminarParametro } from './actions';
 
 interface Parametro {
   id: string;
@@ -19,8 +19,6 @@ export function SeccionParametros({ parametros }: { parametros: Parametro[] }) {
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [valorEdit, setValorEdit] = useState('');
   const [loading, setLoading] = useState(false);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [nuevo, setNuevo] = useState({ clave: '', valor: '', tipo: 'texto' as 'numero' | 'texto', descripcion: '' });
   const [error, setError] = useState<string | null>(null);
 
   async function guardar(id: string) {
@@ -28,15 +26,6 @@ export function SeccionParametros({ parametros }: { parametros: Parametro[] }) {
     const res = await actualizarParametro(id, valorEdit);
     setLoading(false);
     if (res.ok) setEditandoId(null);
-    else setError(res.error ?? 'Error');
-  }
-
-  async function agregar() {
-    if (!nuevo.clave.trim()) { setError('La clave es requerida'); return; }
-    setLoading(true);
-    const res = await crearParametro(nuevo);
-    setLoading(false);
-    if (res.ok) { setMostrarForm(false); setNuevo({ clave: '', valor: '', tipo: 'texto', descripcion: '' }); setError(null); }
     else setError(res.error ?? 'Error');
   }
 
@@ -54,10 +43,6 @@ export function SeccionParametros({ parametros }: { parametros: Parametro[] }) {
           <h2 className="font-display font-semibold text-primary">Parámetros del sistema</h2>
           <p className="text-xs text-text-muted mt-0.5">Multa, días de gracia y configuración general</p>
         </div>
-        <button onClick={() => { setMostrarForm(true); setError(null); }}
-          className="flex items-center gap-1.5 text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-secondary transition-colors">
-          <Plus size={13} /> Nuevo parámetro
-        </button>
       </div>
 
       {error && (
@@ -117,49 +102,6 @@ export function SeccionParametros({ parametros }: { parametros: Parametro[] }) {
         ))}
       </div>
 
-      {/* Formulario nuevo parámetro */}
-      {mostrarForm && (
-        <div className="px-5 py-4 border-t border-gray-100 bg-bg-card/40 space-y-3">
-          <p className="text-sm font-semibold text-text">Nuevo parámetro</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-text-muted">Clave (sin espacios)</label>
-              <input type="text" value={nuevo.clave}
-                onChange={(e) => setNuevo((n) => ({ ...n, clave: e.target.value }))}
-                placeholder="ej: descuento_especial" className={`${INPUT} w-full`} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-text-muted">Tipo</label>
-              <select value={nuevo.tipo} onChange={(e) => setNuevo((n) => ({ ...n, tipo: e.target.value as 'numero' | 'texto' }))} className={`${INPUT} w-full`}>
-                <option value="texto">Texto</option>
-                <option value="numero">Número</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-text-muted">Valor</label>
-              <input type={nuevo.tipo === 'numero' ? 'number' : 'text'} value={nuevo.valor}
-                onChange={(e) => setNuevo((n) => ({ ...n, valor: e.target.value }))}
-                className={`${INPUT} w-full`} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-text-muted">Descripción</label>
-              <input type="text" value={nuevo.descripcion}
-                onChange={(e) => setNuevo((n) => ({ ...n, descripcion: e.target.value }))}
-                placeholder="¿Para qué sirve este parámetro?" className={`${INPUT} w-full`} />
-            </div>
-          </div>
-          <div className="flex gap-2 justify-end">
-            <button onClick={() => { setMostrarForm(false); setError(null); }}
-              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-white transition-colors">
-              Cancelar
-            </button>
-            <button onClick={agregar} disabled={loading}
-              className="px-3 py-1.5 bg-primary text-white rounded-lg text-sm hover:bg-secondary transition-colors disabled:opacity-60">
-              {loading ? 'Guardando...' : 'Agregar'}
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
