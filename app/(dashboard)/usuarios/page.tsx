@@ -42,8 +42,10 @@ export default async function UsuariosPage({
     );
   }
 
-  // Filtro de estatus
-  if (estatusFiltro !== 'todos') {
+  // Filtro de estatus — "todos" excluye bajas por defecto
+  if (estatusFiltro === 'todos') {
+    q = q.neq('estatus', 'baja');
+  } else {
     q = q.eq('estatus', estatusFiltro);
   }
 
