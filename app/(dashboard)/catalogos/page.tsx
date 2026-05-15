@@ -16,6 +16,7 @@ export default async function CatálogosPage() {
     supabase
       .from('parametros_sistema')
       .select('id, clave, valor, tipo, descripcion, es_sistema')
+      .neq('clave', 'ultimo_recalculo_estatus') // parámetro interno, no visible para el admin
       .order('es_sistema', { ascending: false })
       .order('clave'),
     supabase
